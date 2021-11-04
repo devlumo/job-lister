@@ -7,8 +7,10 @@ const jobSchema = new mongoose.Schema({
   datePosted: Date,
 });
 
+// MIDDLEWARES
+
 jobSchema.pre("save", function (next) {
-  this.datePosted = Date.now();
+  this.dateCreated = Date.now();
   next();
 });
 

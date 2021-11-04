@@ -3,6 +3,7 @@ import morgan from "morgan";
 import cors from "cors";
 
 import jobsRouter from "./routes/jobsRouter.js";
+import usersRouter from "./routes/usersRouter.js";
 
 const app = express();
 
@@ -19,6 +20,7 @@ app.use(
 app.use(express.json());
 
 app.use("/api/v1/jobs", jobsRouter);
+app.use("/api/v1/users", usersRouter);
 
 app.get("/", (req, res) => {
   res.status(200).json({
