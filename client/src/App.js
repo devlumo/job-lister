@@ -8,23 +8,30 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [data, setData] = useState(null);
 
+  const getData = async () => {
+    try {
+      const res = await axios.get("http://127.0.0.1:3001/api/v1/jobs");
+      setData(res.data.jobs);
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   useEffect(() => {
-    const getData = async () => {
-      try {
-        const res = await axios.get("http://127.0.0.1:3001/");
-        setData(res.data);
-        setLoading(false);
-      } catch (error) {
-        console.log(error);
-      }
-    };
     getData();
   }, []);
 
   return (
     <div>
-      <h1>Hello World</h1>
-      <div>{loading ? "loading" : data.status}</div>
+      <h1>Jobs</h1>
+      <div>
+        {loading ? (
+          <p>Loading</p>
+        ) : (
+          data.map((el) => <p key={el._id}>{el.name}</p>)
+        )}
+      </div>
     </div>
   );
 }
