@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import validator from "validator";
-import bycrpt from "bcrypt";
+import bcrypt from "bcrypt";
 
 const userSchema = new mongoose.Schema({
   email: {
@@ -30,7 +30,7 @@ userSchema.pre("save", async function (next) {
     return next();
   }
 
-  this.password = await bycrpt.hash(this.password, 10);
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
@@ -38,6 +38,13 @@ userSchema.pre("save", function (next) {
   this.dateCreated = Date.now();
   next();
 });
+
+// INSTANCE METHODS
+
+userSchema.methods.checkPassword = async function (candidatePW, storedPW) {
+  const correct = await bcrypt.compare(candidatePW, storedPW);
+  return correct;
+};
 
 const User = mongoose.model("User", userSchema);
 
