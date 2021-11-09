@@ -16,14 +16,14 @@ const signUp = async (req, res, next) => {
 
     // Create JWT and return token, "sign in"
     const token = signToken(newUser._id);
-    console.log(token);
+
     res.status(201).json({
       status: "Success",
       token,
       newUser,
     });
   } catch (error) {
-    console.log(error);
+    return next(new AppError(error.message, 500));
   }
 };
 
@@ -48,7 +48,7 @@ const login = async (req, res, next) => {
       token,
     });
   } catch (error) {
-    next(error);
+    return next(new AppError(error.message, 500));
   }
 };
 

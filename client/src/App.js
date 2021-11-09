@@ -23,13 +23,17 @@ export default function App() {
   }, []);
 
   return (
-    <div>
+    <div className="p-3">
       <h1>Jobs</h1>
-      <div>
+      <div className="mt-2">
         {loading ? (
           <p>Loading</p>
         ) : (
-          data.map((el) => <p key={el._id}>{el.name}</p>)
+          <ul>
+            {data.map((el) => (
+              <li key={el._id}>{el.name}</li>
+            ))}
+          </ul>
         )}
       </div>
     </div>
