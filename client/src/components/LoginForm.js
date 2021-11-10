@@ -1,21 +1,26 @@
 import React from "react";
 import axios from "axios";
 
+import { useNavigate } from "react-router-dom";
+
 export const LoginForm = () => {
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const { username, password } = e.target.elements;
-    axios
-      .post("http://127.0.0.1:3001/api/v1/users/login/", {
-        email: username.value,
-        password: password.value,
-      })
-      .then((res) => {
-        console.log(res);
-      })
-      .catch((error) => {
-        console.log("Oops!", error.response);
-      });
+  let navigate = useNavigate();
+  const handleSubmit = async (e) => {
+    try {
+      e.preventDefault();
+      const { username, password } = e.target.elements;
+      const res = await axios.post(
+        "http://127.0.0.1:3001/api/v1/users/login/",
+        {
+          email: username.value,
+          password: password.value,
+        }
+      );
+      console.log(res.data.token);
+      navigate("/");
+    } catch (error) {
+      console.log("Oops!", error.response);
+    }
   };
 
   return (
