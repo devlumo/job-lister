@@ -16,6 +16,13 @@ export const LoginForm = () => {
           password: password.value,
         }
       );
+      /* TODO:
+        - Save token in redux
+        - Handle errors on frontend
+        - Disable button until correct info entered (state)
+        - ?Library for checking correct email?
+      
+      */
       console.log(res.data.token);
       navigate("/");
     } catch (error) {
