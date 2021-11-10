@@ -1,11 +1,11 @@
 import React from "react";
-import Job from "./Job";
-import Loading from "./Loading";
-
 import { useEffect } from "react";
 import { useState } from "react";
 
 import axios from "axios";
+
+import Job from "./Job";
+import Loading from "./Loading";
 
 export default function JobList() {
   const [jobData, setJobData] = useState(null);

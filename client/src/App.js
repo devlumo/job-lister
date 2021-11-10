@@ -1,16 +1,20 @@
 import React from "react";
+import { Route, Routes } from "react-router";
 
-import JobList from "./components/JobList";
+import { Header } from "./components/Header";
+import { Home } from "./pages/Home";
+import { Login } from "./pages/Login";
 
 export default function App() {
   // use loading state to avoid error while waiting on api reques
 
   return (
-    <div className="flex items-center justify-center flex-col w-screen">
-      <h1 className="mb-4 mt-2">Jobs</h1>
-      <div className="w-full flex items-center justify-center flex-col">
-        <JobList />
-      </div>
+    <div>
+      <Header />
+      <Routes>
+        <Route exact path="/" element={<Home />}></Route>
+        <Route exact path="/login" element={<Login />}></Route>
+      </Routes>
     </div>
   );
 }
