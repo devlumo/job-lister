@@ -1,14 +1,33 @@
 import React from "react";
 import axios from "axios";
+import validator from "validator";
 
+import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
 export const LoginForm = () => {
+  const [error, setError] = useState(null);
+  const dispatch = useDispatch();
+
   let navigate = useNavigate();
+
   const handleSubmit = async (e) => {
     try {
       e.preventDefault();
       const { username, password } = e.target.elements;
+
+      if (!validator.isEmail(username.value)) {
+        setError("Enter a valid email");
+        return;
+      }
+
+      if (password.value.length < 7) {
+        console.log(password.value.length);
+        setError("Password must contain at least 8 characters");
+        return;
+      }
+
       const res = await axios.post(
         "http://127.0.0.1:3001/api/v1/users/login/",
         {
@@ -18,15 +37,15 @@ export const LoginForm = () => {
       );
       /* TODO:
         - Save token in redux
-        - Handle errors on frontend
-        - Disable button until correct info entered (state)
-        - ?Library for checking correct email?
       
       */
       console.log(res.data.token);
+      dispatch({ type: "UPDATE_TOKEN", payload: res.data.token });
+      setError(null);
       navigate("/");
     } catch (error) {
-      console.log("Oops!", error.response);
+      console.log("Oops!", error);
+      setError("Email or password is incorrect");
     }
   };
 
@@ -51,10 +70,11 @@ export const LoginForm = () => {
           name="Password"
           id="password"
         />
+        <span className="text-red-600">{error ? error : ""}</span>
         <input
           type="submit"
           value="login"
-          className="text-white bg-green-400 p-2 rounded-lg"
+          className={`text-white p-2 rounded-lg bg-blue-600`}
         />
       </form>
     </div>
