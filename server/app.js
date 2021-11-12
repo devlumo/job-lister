@@ -1,6 +1,7 @@
 import express from "express";
 import morgan from "morgan";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 
 import jobsRouter from "./routes/jobsRouter.js";
 import usersRouter from "./routes/usersRouter.js";
@@ -10,15 +11,18 @@ import errorHandler from "./controllers/errorController.js";
 
 const app = express();
 
-if (process.env.WORKING_ENV === "development") {
-  app.use(morgan("dev"));
-}
-
 app.use(
   cors({
     origin: "http://localhost:3000",
+    credentials: true,
   })
 );
+
+app.use(cookieParser());
+
+if (process.env.WORKING_ENV === "development") {
+  app.use(morgan("dev"));
+}
 
 app.use(express.json());
 

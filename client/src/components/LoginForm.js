@@ -33,14 +33,15 @@ export const LoginForm = () => {
         {
           email: username.value,
           password: password.value,
-        }
+        },
+        { withCredentials: true }
       );
-      /* TODO:
-        - Save token in redux
-      
-      */
-      console.log(res.data.token);
+
+      // TODO: Set up production development checkpoint here
+      localStorage.setItem("refreshToken", res.data.refreshToken);
       dispatch({ type: "UPDATE_TOKEN", payload: res.data.token });
+      dispatch({ type: "SET_LOGGED_IN", payload: true });
+
       setError(null);
       navigate("/");
     } catch (error) {

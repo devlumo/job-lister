@@ -1,12 +1,55 @@
 import User from "../models/usersModel.js";
 import jwt from "jsonwebtoken";
+import { promisify } from "util";
 
 import AppError from "../utils/appError.js";
 
-const signToken = (id) => {
-  return jwt.sign({ id }, process.env.JWT_SECRET, {
-    expiresIn: process.env.JWT_EXPIRES_IN,
+const signAccessToken = (id) => {
+  return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
+    expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN,
   });
+};
+
+const signRefreshToken = (id) => {
+  return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, {
+    expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
+  });
+};
+
+const refreshToken = async (req, res, next) => {
+  let token;
+  try {
+    if (
+      req.headers.authorization &&
+      req.headers.authorization.startsWith("Bearer")
+    ) {
+      token = req.headers.authorization.split(" ")[1];
+    }
+
+    if (!token) {
+      return next(
+        new AppError("You are not logged in - Please login to access", 401)
+      );
+    }
+
+    const decoded = await promisify(jwt.verify)(
+      token,
+      process.env.REFRESH_TOKEN_SECRET
+    );
+
+    const accessToken = signAccessToken(decoded.id);
+
+    res.cookie("refreshToken", signRefreshToken(decoded.id), {
+      expire: process.env.REFRESH_TOKEN_EXPIRES_IN,
+    });
+
+    return res.status(201).json({
+      status: "Success",
+      accessToken,
+    });
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 const signUp = async (req, res, next) => {
@@ -15,7 +58,7 @@ const signUp = async (req, res, next) => {
     const newUser = await User.create(req.body);
 
     // Create JWT and return token, "sign in"
-    const token = signToken(newUser._id);
+    const token = signAccessToken(newUser._id);
 
     res.status(201).json({
       status: "Success",
@@ -41,12 +84,40 @@ const login = async (req, res, next) => {
       return next(new AppError("The email or password is incorrect", 400));
     }
 
-    const token = signToken(user._id);
+    const token = signAccessToken(user._id);
 
-    res.status(200).json({
-      status: "Successfully logged in",
-      token,
-    });
+    /*
+    CANNOT USE CROSS SITE COOKIE IN DEVELOPMENT:
+    Because a cookie’s SameSite attribute was not set or is invalid, it defaults to SameSite=Lax,
+     which prevents the cookie from being set in a cross-site context.
+     This behavior protects user data from accidentally leaking to third parties and cross-site request forgery.
+    resolve this issue by updating the attributes of the cookie
+    */
+
+    // Send refresh token in development to be used in localStorage
+    if (process.env.WORKING_ENV === "development") {
+      const refreshToken = signRefreshToken(user._id);
+      res.status(200).json({
+        status: "Successfully logged in",
+        token,
+        refreshToken,
+      });
+    }
+
+    // Cookie only used in production
+    if (process.env.WORKING_ENV === "production") {
+      res.cookie("refreshToken", signRefreshToken(user._id), {
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        sameSite: "None",
+        secure: true,
+      });
+
+      res.status(200).json({
+        status: "Successfully logged in",
+        token,
+      });
+    }
   } catch (error) {
     return next(new AppError(error.message, 500));
   }

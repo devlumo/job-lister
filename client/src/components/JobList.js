@@ -13,7 +13,9 @@ export default function JobList() {
 
   const getData = async () => {
     try {
-      const res = await axios.get("http://127.0.0.1:3001/api/v1/jobs");
+      const res = await axios.get("http://127.0.0.1:3001/api/v1/jobs", {
+        withCredentials: true,
+      });
       setJobData(res.data.jobs);
       setLoading(false);
     } catch (error) {
