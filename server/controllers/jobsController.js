@@ -13,6 +13,20 @@ const getAllJobs = async (req, res, next) => {
   }
 };
 
+const protectedJob = async (req, res, next) => {
+  try {
+    const jobs = await Job.find();
+
+    res.status(200).json({
+      status: "Success",
+      jobs,
+      user: req.user,
+    });
+  } catch (error) {
+    console.log("Error in router", error);
+  }
+};
+
 const createJob = async (req, res, next) => {
   try {
     const newTour = await Job.create(req.body);
@@ -27,4 +41,4 @@ const createJob = async (req, res, next) => {
   }
 };
 
-export { getAllJobs, createJob };
+export { getAllJobs, createJob, protectedJob };

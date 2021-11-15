@@ -8,6 +8,7 @@ import { Header } from "./components/Header";
 import { Home } from "./pages/Home";
 import { Login } from "./pages/Login";
 import { NoMatch } from "./pages/NoMatch ";
+import { VipJob } from "./pages/VipJob";
 
 export default function App() {
   const dispatch = useDispatch();
@@ -47,6 +48,7 @@ export default function App() {
       <Routes>
         <Route exact path="/" element={<Home />}></Route>
         <Route exact path="/login" element={<Login />}></Route>
+        <Route exact path="/jobs/vip-jobs" element={<VipJob />}></Route>
         <Route path="*" element={<NoMatch />} />
       </Routes>
     </div>

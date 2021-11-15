@@ -144,7 +144,6 @@ const protect = async (req, res, next) => {
   try {
     // get token
     let token = getToken(req);
-
     // verify that token is an access token
     if (!token) {
       return next(
@@ -173,7 +172,7 @@ const protect = async (req, res, next) => {
     next();
   } catch (error) {
     return next(
-      new AppError("You do not have access to this information", 400)
+      new AppError(`You don't have access to this information ${error}`, 400)
     );
   }
 };
