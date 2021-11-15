@@ -61,6 +61,7 @@ export const LoginForm = () => {
           placeholder="Email / Username"
           name="Email"
           id="username"
+          autoComplete="none"
         />
         <label className="text-sm" htmlFor="Password">
           Password

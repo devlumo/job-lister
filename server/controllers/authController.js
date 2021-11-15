@@ -8,6 +8,7 @@ import { signAccessToken, signRefreshToken } from "../utils/auth/authUtils.js";
 const refreshToken = async (req, res, next) => {
   let token;
   try {
+    // Get token from autorization header
     if (
       req.headers.authorization &&
       req.headers.authorization.startsWith("Bearer")
@@ -15,25 +16,31 @@ const refreshToken = async (req, res, next) => {
       token = req.headers.authorization.split(" ")[1];
     }
 
+    console.log(token);
+
     if (!token) {
       return next(
         new AppError("You are not logged in - Please login to access", 401)
       );
     }
 
+    // verify token and return an error if it is malformed etc
     const decoded = await promisify(jwt.verify)(
       token,
       process.env.REFRESH_TOKEN_SECRET
     );
 
+    console.log(decoded.id);
+    console.log(decoded);
     if (!decoded) {
       return next(
         new AppError("You are not logged in - Please login to access", 401)
       );
     }
 
+    // check if token has expired
+
     const accessToken = signAccessToken(decoded.id);
-    console.log(decoded.id);
 
     // If we are in production, send cookie
     if (process.env.WORKING_ENV === "production") {
@@ -52,7 +59,7 @@ const refreshToken = async (req, res, next) => {
 
     // Send refresh token in development to be used in localStorage
     if (process.env.WORKING_ENV === "development") {
-      const refreshToken = signRefreshToken(decoded._id);
+      const refreshToken = signRefreshToken(decoded.id);
       res.status(200).json({
         status: "Success",
         accessToken,
@@ -60,7 +67,12 @@ const refreshToken = async (req, res, next) => {
       });
     }
   } catch (error) {
-    console.log(error);
+    return next(
+      new AppError(
+        `The provided refresh token is invalid, please login again: ${error}`,
+        401
+      )
+    );
   }
 };
 

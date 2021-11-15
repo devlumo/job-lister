@@ -15,6 +15,10 @@ export default function App() {
   useEffect(() => {
     async function getRefreshToken() {
       try {
+        if (!localStorage.getItem("refreshToken")) {
+          return;
+        }
+
         const res = await axios.get(
           "http://127.0.0.1:3001/api/v1/users/refreshToken/",
           {
@@ -28,9 +32,11 @@ export default function App() {
         console.log(res.data);
 
         localStorage.setItem("refreshToken", res.data.refreshToken);
+
         dispatch({ type: "UPDATE_TOKEN", payload: res.data.accessToken });
         dispatch({ type: "SET_LOGGED_IN", payload: true });
       } catch (error) {
+        localStorage.removeItem("refreshToken");
         console.log(error);
       }
     }
