@@ -39,7 +39,7 @@ export const LoginForm = () => {
 
       // TODO: Set up production development checkpoint here
       localStorage.setItem("refreshToken", res.data.refreshToken);
-      dispatch({ type: "UPDATE_TOKEN", payload: res.data.token });
+      dispatch({ type: "UPDATE_TOKEN", payload: res.data.accessToken });
       dispatch({ type: "SET_LOGGED_IN", payload: true });
 
       setError(null);

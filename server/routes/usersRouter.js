@@ -8,6 +8,6 @@ const usersRouter = express.Router();
 usersRouter.route("/").get(getAllUsers);
 usersRouter.route("/signup").post(signUp);
 usersRouter.route("/login").post(login);
-usersRouter.route("/refreshToken").post(refreshToken);
+usersRouter.route("/refreshToken").get(refreshToken);
 
 export default usersRouter;

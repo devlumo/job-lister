@@ -26,7 +26,14 @@ const refreshToken = async (req, res, next) => {
       process.env.REFRESH_TOKEN_SECRET
     );
 
+    if (!decoded) {
+      return next(
+        new AppError("You are not logged in - Please login to access", 401)
+      );
+    }
+
     const accessToken = signAccessToken(decoded.id);
+    console.log(decoded.id);
 
     // If we are in production, send cookie
     if (process.env.WORKING_ENV === "production") {
@@ -48,7 +55,7 @@ const refreshToken = async (req, res, next) => {
       const refreshToken = signRefreshToken(decoded._id);
       res.status(200).json({
         status: "Success",
-        token,
+        accessToken,
         refreshToken,
       });
     }
@@ -104,7 +111,7 @@ const login = async (req, res, next) => {
       const refreshToken = signRefreshToken(user._id);
       res.status(200).json({
         status: "Successfully logged in",
-        token,
+        accessToken,
         refreshToken,
       });
     }
