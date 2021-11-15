@@ -6,7 +6,7 @@ import cookieParser from "cookie-parser";
 import jobsRouter from "./routes/jobsRouter.js";
 import usersRouter from "./routes/usersRouter.js";
 
-import AppError from "./utils/appError.js";
+import AppError from "./utils/errors/appError.js";
 import errorHandler from "./controllers/errorController.js";
 
 const app = express();

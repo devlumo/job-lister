@@ -2,19 +2,8 @@ import User from "../models/usersModel.js";
 import jwt from "jsonwebtoken";
 import { promisify } from "util";
 
-import AppError from "../utils/appError.js";
-
-const signAccessToken = (id) => {
-  return jwt.sign({ id }, process.env.ACCESS_TOKEN_SECRET, {
-    expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN,
-  });
-};
-
-const signRefreshToken = (id) => {
-  return jwt.sign({ id }, process.env.REFRESH_TOKEN_SECRET, {
-    expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN,
-  });
-};
+import AppError from "../utils/errors/appError.js";
+import { signAccessToken, signRefreshToken } from "../utils/auth/authUtils.js";
 
 const refreshToken = async (req, res, next) => {
   let token;
@@ -39,14 +28,30 @@ const refreshToken = async (req, res, next) => {
 
     const accessToken = signAccessToken(decoded.id);
 
-    res.cookie("refreshToken", signRefreshToken(decoded.id), {
-      expire: process.env.REFRESH_TOKEN_EXPIRES_IN,
-    });
+    // If we are in production, send cookie
+    if (process.env.WORKING_ENV === "production") {
+      res.cookie("refreshToken", signRefreshToken(decoded.id), {
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        sameSite: "None",
+        secure: true,
+      });
 
-    return res.status(201).json({
-      status: "Success",
-      accessToken,
-    });
+      res.status(200).json({
+        status: "Success",
+        accessToken,
+      });
+    }
+
+    // Send refresh token in development to be used in localStorage
+    if (process.env.WORKING_ENV === "development") {
+      const refreshToken = signRefreshToken(decoded._id);
+      res.status(200).json({
+        status: "Success",
+        token,
+        refreshToken,
+      });
+    }
   } catch (error) {
     console.log(error);
   }
@@ -84,7 +89,7 @@ const login = async (req, res, next) => {
       return next(new AppError("The email or password is incorrect", 400));
     }
 
-    const token = signAccessToken(user._id);
+    const accessToken = signAccessToken(user._id);
 
     /*
     CANNOT USE CROSS SITE COOKIE IN DEVELOPMENT:
@@ -115,7 +120,7 @@ const login = async (req, res, next) => {
 
       res.status(200).json({
         status: "Successfully logged in",
-        token,
+        accessToken,
       });
     }
   } catch (error) {
@@ -123,4 +128,4 @@ const login = async (req, res, next) => {
   }
 };
 
-export { signUp, login };
+export { signUp, login, refreshToken };
