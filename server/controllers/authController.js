@@ -102,7 +102,7 @@ const login = async (req, res, next) => {
     }
 
     const accessToken = signAccessToken(user._id);
-
+    const userData = { email: user.email, dateCreated: user.dateCreated };
     /*
     CANNOT USE CROSS SITE COOKIE IN DEVELOPMENT:
     Because a cookie’s SameSite attribute was not set or is invalid, it defaults to SameSite=Lax,
@@ -118,6 +118,7 @@ const login = async (req, res, next) => {
         status: "Successfully logged in",
         accessToken,
         refreshToken,
+        user: userData,
       });
     }
 
@@ -133,6 +134,7 @@ const login = async (req, res, next) => {
       res.status(200).json({
         status: "Successfully logged in",
         accessToken,
+        user,
       });
     }
   } catch (error) {

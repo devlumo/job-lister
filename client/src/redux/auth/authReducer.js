@@ -1,9 +1,10 @@
 const INITIAL_STATE = {
   accessToken: null,
   loggedIn: false,
+  user: null,
 };
 
-const tokenReducer = (state = INITIAL_STATE, action) => {
+const authReducer = (state = INITIAL_STATE, action) => {
   switch (action.type) {
     case "UPDATE_TOKEN":
       return {
@@ -15,10 +16,15 @@ const tokenReducer = (state = INITIAL_STATE, action) => {
         ...state,
         loggedIn: action.payload,
       };
+    case "SET_USER_DATA":
+      return {
+        ...state,
+        user: action.payload,
+      };
 
     default:
       return state;
   }
 };
 
-export default tokenReducer;
+export default authReducer;
