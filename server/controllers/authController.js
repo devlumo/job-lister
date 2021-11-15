@@ -3,20 +3,17 @@ import jwt from "jsonwebtoken";
 import { promisify } from "util";
 
 import AppError from "../utils/errors/appError.js";
-import { signAccessToken, signRefreshToken } from "../utils/auth/authUtils.js";
+import {
+  signAccessToken,
+  signRefreshToken,
+  getToken,
+} from "../utils/auth/authUtils.js";
 
 const refreshToken = async (req, res, next) => {
   let token;
   try {
     // Get token from autorization header
-    if (
-      req.headers.authorization &&
-      req.headers.authorization.startsWith("Bearer")
-    ) {
-      token = req.headers.authorization.split(" ")[1];
-    }
-
-    console.log(token);
+    token = getToken(req);
 
     if (!token) {
       return next(
@@ -30,15 +27,11 @@ const refreshToken = async (req, res, next) => {
       process.env.REFRESH_TOKEN_SECRET
     );
 
-    console.log(decoded.id);
-    console.log(decoded);
     if (!decoded) {
       return next(
         new AppError("You are not logged in - Please login to access", 401)
       );
     }
-
-    // check if token has expired
 
     const accessToken = signAccessToken(decoded.id);
 
@@ -147,4 +140,42 @@ const login = async (req, res, next) => {
   }
 };
 
-export { signUp, login, refreshToken };
+const protect = async (req, res, next) => {
+  try {
+    // get token
+    let token = getToken(req);
+
+    // verify that token is an access token
+    if (!token) {
+      return next(
+        new AppError("You are not logged in - Please login to access", 401)
+      );
+    }
+
+    const decoded = await promisify(jwt.verify)(
+      token,
+      process.env.ACCESS_TOKEN_SECRET
+    );
+
+    if (!decoded) {
+      return next(
+        new AppError("You are not logged in - Please login to access", 401)
+      );
+    }
+
+    // get user from token
+    const currentUser = await User.findById(decoded.id);
+
+    // TODO: additional checks has pw changed after token issued, check if user exists
+
+    // add user data to the request, next() -> move to next route
+    req.user = currentUser;
+    next();
+  } catch (error) {
+    return next(
+      new AppError("You do not have access to this information", 400)
+    );
+  }
+};
+
+export { signUp, login, refreshToken, protect };

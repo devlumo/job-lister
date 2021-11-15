@@ -12,4 +12,13 @@ const signRefreshToken = (id) => {
   });
 };
 
-export { signAccessToken, signRefreshToken };
+const getToken = (req) => {
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    return req.headers.authorization.split(" ")[1];
+  }
+};
+
+export { signAccessToken, signRefreshToken, getToken };

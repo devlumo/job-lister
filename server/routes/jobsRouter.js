@@ -1,5 +1,6 @@
 import express from "express";
 import { getAllJobs, createJob } from "../controllers/jobsController.js";
+import { protect } from "../controllers/authController.js";
 
 const jobsRouter = express.Router();
 

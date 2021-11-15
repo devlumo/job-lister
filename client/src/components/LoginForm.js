@@ -23,7 +23,6 @@ export const LoginForm = () => {
       }
 
       if (password.value.length < 7) {
-        console.log(password.value.length);
         setError("Password must contain at least 8 characters");
         return;
       }
@@ -54,11 +53,11 @@ export const LoginForm = () => {
     <div>
       <form className="flex flex-col" onSubmit={handleSubmit}>
         <label className="text-sm" htmlFor="Email">
-          Email / Username
+          Email
         </label>
         <input
           type="text"
-          placeholder="Email / Username"
+          placeholder="Email"
           name="Email"
           id="username"
           autoComplete="none"

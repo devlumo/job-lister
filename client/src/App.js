@@ -29,10 +29,7 @@ export default function App() {
           }
         );
 
-        console.log(res.data);
-
         localStorage.setItem("refreshToken", res.data.refreshToken);
-
         dispatch({ type: "UPDATE_TOKEN", payload: res.data.accessToken });
         dispatch({ type: "SET_LOGGED_IN", payload: true });
       } catch (error) {
